@@ -1,7 +1,6 @@
 import numpy as np
 from derivee import derivee, derivee2
-
-h_bar = 1.054571818e-34
+from constants import H_BAR
 
 
 

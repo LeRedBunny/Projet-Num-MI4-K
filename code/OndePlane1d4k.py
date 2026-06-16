@@ -18,6 +18,8 @@ def splitInterval (a: float, b: float, n: int) -> list[float] :
 
 
 if __name__ == '__main__' :
+
+	amp = 1
 	
 	t_0 = 1
 	t = t_0
@@ -28,9 +30,11 @@ if __name__ == '__main__' :
 	x_range = (0, 100)
 	splits = 100
 	
-	interval = splitInterval(x_range[0], x_range[1], splits)
-	y = [PlaneWave(amp, k, omega, x, t) for x in interval]
+	x = splitInterval(x_range[0], x_range[1], splits)
+	y = [PlaneWave(amp, k, omega, x, t) for x in x]
 	
 	fig, ax = plt.subplots()
+	ax.plot(x, y)
+	plt.show()
 	...
 	
