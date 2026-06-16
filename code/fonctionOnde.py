@@ -1,8 +1,8 @@
+'''idk what this file is tbh'''
+
 import numpy as np
 from derivee import derivee, derivee2
 from constants import H_BAR
-
-
 
 
 if __name__ == '__main__' :

@@ -1,3 +1,5 @@
+'''Contains functions that can be useful in many situations and fit in no specific file'''
+
 
 
 def splitInterval (a: float, b: float, n: int) -> list[float] :

@@ -1,3 +1,5 @@
+'''Plane waves.'''
+
 from numpy import pi, exp, sqrt, real, imag, zeros, linspace
 import matplotlib.pyplot as plt
 from helper import splitInterval
@@ -8,7 +10,6 @@ from helper import splitInterval
 def PlaneWave (amp: complex, k: float, omega: float, x: float, t: float) -> complex :
 	'''Salut!!!!!'''
 	return amp * exp(1j * (omega * t - k * x))
-
 
 
 
