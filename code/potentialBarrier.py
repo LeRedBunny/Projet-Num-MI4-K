@@ -20,9 +20,9 @@ if __name__ == '__main__' :
     
     x_0 = -5 # Starting "position"
     
-    x_min = -5
+    x_min = -50
     x_max = 5
-    nx = 100
+    nx = 500
     x_int = linspace(x_min, x_max, nx)
 
 
@@ -30,15 +30,16 @@ if __name__ == '__main__' :
 
     t_min = 0
     t_max = 10
-    nt = 50
+    nt = 500
     t_int = linspace(t_min, t_max, nt)
 
 
     # Potential Barrier
 
-    V_0 = 1 # J
-    L = 1 # m ??
-    potential = [V_0 if 0 <= x <= L else 0 for x in x_int]
+    value = 1e-5 # J
+    start = 5
+    length = 1 # m ??
+    potential = [value if start <= x <= start + length else 0 for x in x_int]
 
 
     # Wavefunction
@@ -59,18 +60,20 @@ if __name__ == '__main__' :
     y = [wavefunction[i, t_i] * wavefunction[i, t_i].conjugate() for i in range(nx)]
 
     fig, ax = plt.subplots()
-    ax.set(xlabel='Position (m)', ylim=(0, 1), ylabel='Probability Density')
+    ax.set(xlim=(-5, 10), xlabel='Position (m)', ylabel='Probability Density')
     fig.suptitle(f't={t_min}s')
     line = ax.plot(x, y)[0]
 
     def update (frame) -> None :
         '''Moves forward in time'''
         global t_i
-        t_i += 1
-        line.set_ydata([wavefunction[i, t_i] * wavefunction[i, t_i].conjugate() for i in range(nx)])
-        fig.suptitle(f'Probability Density at t={t_int[t_i]}s')
+        if t_i < nt :
+            t_i += 1
+            line.set_ydata([wavefunction[i, t_i] * wavefunction[i, t_i].conjugate() for i in range(nx)])
+            fig.suptitle(f'Probability Density at t={t_int[t_i]}s')
 
-    animation = anim.FuncAnimation(fig, update, nt - 1, interval=10)
+    animation = anim.FuncAnimation(fig, update, nt)
+    #animation.save(filename="animation.gif", writer="pillow")
     plt.show()
 
 

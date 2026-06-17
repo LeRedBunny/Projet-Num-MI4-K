@@ -6,7 +6,7 @@ from derivative import derivative2
 from numpy import empty, linspace
 from constants import H_BAR, ME
 import matplotlib.pyplot as plt
-
+import matplotlib.animation as anim
 
 def completeNextColumn (wavefunction: WaveFunction, t_i: int, x_int: Interval, t_int: Interval, potential: Function) -> None :
     '''Completes the column of the array, corresponding to the instant in time t_i + 1.'''
@@ -43,8 +43,8 @@ if __name__ == '__main__' :
 
     # Space
     
-    x_min = -2
-    x_max = 2
+    x_min = -10
+    x_max = 10
     nx = 100
     x_int = linspace(x_min, x_max, nx)
 
@@ -73,7 +73,7 @@ if __name__ == '__main__' :
 
     # Display
 
-    t_index = 1
+    t_index = 25
     t = t_int[t_index]
 
     fig, (ax_real, ax_imag) = plt.subplots(2)
@@ -85,6 +85,7 @@ if __name__ == '__main__' :
 
 
     plt.show()
+
 
 
 
