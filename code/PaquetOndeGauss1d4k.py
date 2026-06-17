@@ -1,7 +1,5 @@
 '''Gaussian Wave Packet.'''
 
-
-
 from constants import H_BAR, ME, TWO_PI
 from numpy import exp, linspace
 import matplotlib.pyplot as plt

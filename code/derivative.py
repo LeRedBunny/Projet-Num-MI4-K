@@ -1,4 +1,5 @@
 '''Functions to approximate the first and second derivatives of a function'''
+
 from types import Interval, Function
 
 
