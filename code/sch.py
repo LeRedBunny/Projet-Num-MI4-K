@@ -1,24 +1,27 @@
 '''Approximates the wavefunction using Schrödinger's equation.'''
 
 from derivative import derivative, derivative2
+from types import WaveFunction, Interval
 from PaquetOndeGauss1d4k import GaussWP
 from numpy import empty, linspace
 from constants import H_BAR
-from types import WaveFunction, Interval
 
 
-
-    # Function  
 
 
 def ApproximateWF (wavefunction: WaveFunction, x_int: Interval, t_int: Interval) -> None :
     '''Completes the array representing the wavefunction using Schrödinger's equation.'''
     
+    initial_wf = wavefunction[:, 0]
+    laplacian = derivative2(initial_wf, x_int)
+
+    for i in range(len(x_int)) :
+        for j in range(1, len(t_int)) :
+
+            wavefunction[i, j] = 
 
 
 
-
-    # Main
 
 if __name__ == '__main__' :
 
