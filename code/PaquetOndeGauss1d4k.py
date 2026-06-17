@@ -18,7 +18,7 @@ if __name__ == '__main__' :
 	k0 = 1
 	a=1
 	
-	x_range = (0, 100)
+	x_range = (0, 2)
 	splits = 100
 	
 	x = linspace(x_range[0], x_range[1], splits)

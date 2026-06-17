@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 def ApproximateNextPosition (position: int, wavefunction: WaveFunction, t_int: Interval, potential: float) -> None :
     '''Completes the next line of the array, corresponding to the next position, using Schrödinger's equation.'''
 
-    laplacian = derivative2(wavefunction[:, position], x_int)
+    laplacian = derivative2(wavefunction[position, :], x_int)
 
     # Proof n°1
     for i in range(len(t_int) - 1) :
@@ -55,20 +55,23 @@ if __name__ == '__main__' :
     # Wavefunction
     wavefunction = empty((nx, nt), dtype=complex)
     for i in range(nx) :
-        wavefunction[0, i] = GaussWP(k0, a, x_int[i], 0)
+        wavefunction[0, i] = GaussWP(k0, a, x_int[i], t_min)
     
     ApproximateWaveFunction(wavefunction, x_int, t_int, potential)
 
 
     # Display
+
+    t = t_int[1]
+
     fig, (ax_real, ax_imag) = plt.subplots(2)
-    fig.suptitle(f'Wavefunction Ψ at time t={t_min}s')
+    fig.suptitle(f'Wavefunction Ψ at time t={t}s')
 
-    ax_real.plot(x_int, [wavefunction[i, 0].real for i in range(nx)])
-    ax_real.set_title(f'Real Part')
+    ax_real.plot(x_int, [wavefunction[i, 1].real for i in range(nx)])
+    ax_real.set_title(f'Approximation')
 
-    ax_imag.plot(x_int, [wavefunction[i, 0].imag for i in range(nx)])
-    ax_imag.set_title(f'Imaginary Part')
+    ax_imag.plot(x_int, [GaussWP(k0, a, x_int[i], t).real for i in range(nx)])
+    ax_imag.set_title(f'Exact value')
 
 
     plt.show()
