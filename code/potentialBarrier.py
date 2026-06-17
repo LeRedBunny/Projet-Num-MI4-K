@@ -2,7 +2,7 @@
 from SchrodingerApproximation import ApproximateWaveFunction
 from PaquetOndeGauss1d4k import GaussWP
 from numpy import linspace, empty
-
+from matplotlib import pyplot as plt, animation as anim
 
 
 
@@ -17,6 +17,8 @@ if __name__ == '__main__' :
 
 
     # Space
+    
+    x_0 = -5 # Starting "position"
     
     x_min = -5
     x_max = 5
@@ -48,4 +50,28 @@ if __name__ == '__main__' :
     ApproximateWaveFunction(wavefunction, x_int, t_int, potential)
 
 
-    
+
+    # Animation Attempt
+
+    t_i = 0
+
+    x = x_int
+    y = [wavefunction[i, t_i] * wavefunction[i, t_i].conjugate() for i in range(nx)]
+
+    fig, ax = plt.subplots()
+    ax.set(xlabel='Position (m)', ylim=(0, 1), ylabel='Probability Density')
+    fig.suptitle(f't={t_min}s')
+    line = ax.plot(x, y)[0]
+
+    def update (frame) -> None :
+        '''Moves forward in time'''
+        global t_i
+        t_i += 1
+        line.set_ydata([wavefunction[i, t_i] * wavefunction[i, t_i].conjugate() for i in range(nx)])
+        fig.suptitle(f'Probability Density at t={t_int[t_i]}s')
+
+    animation = anim.FuncAnimation(fig, update, nt - 1, interval=10)
+    plt.show()
+
+
+
