@@ -8,16 +8,16 @@ from constants import H_BAR, ME
 import matplotlib.pyplot as plt
 
 
-def ApproximateNextPosition (position: int, wavefunction: WaveFunction, t_int: Interval, potential: float) -> None :
-    '''Completes the next line of the array, corresponding to the next position, using Schrödinger's equation.'''
+def ApproximateNextColumn (column: int, wavefunction: WaveFunction, x_int: Interval, t_int: Interval, potential: float) -> None :
+    '''Completes the next column of the array, corresponding to the next instant in time, using Schrödinger's equation.'''
 
-    laplacian = derivative2(wavefunction[position, :], x_int)
+    laplacian = derivative2(wavefunction[:, column], x_int)
 
     # Proof n°1
     for i in range(len(t_int) - 1) :
         dt = t_int[i + 1] - t_int[i]
-        wavefunction[position + 1, i + 1] = (
-            (1 - 1j * potential * dt / H_BAR) *  wavefunction[position, i] 
+        wavefunction[i + 1, column + 1] = (
+            (1 - 1j * potential * dt / H_BAR) *  wavefunction[column, i] 
             + 0.5j * H_BAR * dt * laplacian[i] / ME
         )
 
@@ -25,8 +25,8 @@ def ApproximateNextPosition (position: int, wavefunction: WaveFunction, t_int: I
 def ApproximateWaveFunction (wavefunction: WaveFunction, x_int: Interval, t_int: Interval, potential: Function) -> None :
     '''Completes the array representing the wavefunction using Schrödinger's equation.'''
     
-    for i in range(len(x_int) - 1) :
-        ApproximateNextPosition(i, wavefunction, t_int, potential[i])
+    for i in range(len(t_int) - 1) :
+        ApproximateNextColumn(i, wavefunction, x_int, t_int, potential[i])
 
 
 
@@ -38,9 +38,9 @@ if __name__ == '__main__' :
     a = 1
 
     # Space
-    x_min = 0
-    x_max = 1
-    nx = 50
+    x_min = -2
+    x_max = 2
+    nx = 100
     x_int = linspace(x_min, x_max, nx)
 
     # Time
@@ -55,23 +55,22 @@ if __name__ == '__main__' :
     # Wavefunction
     wavefunction = empty((nx, nt), dtype=complex)
     for i in range(nx) :
-        wavefunction[0, i] = GaussWP(k0, a, x_int[i], t_min)
+        wavefunction[i, 0] = GaussWP(k0, a, x_int[i], t_min)
     
     ApproximateWaveFunction(wavefunction, x_int, t_int, potential)
 
 
     # Display
 
-    t = t_int[1]
+    t_index = 1
+    t = t_int[t_index]
 
     fig, (ax_real, ax_imag) = plt.subplots(2)
     fig.suptitle(f'Wavefunction Ψ at time t={t}s')
 
-    ax_real.plot(x_int, [wavefunction[i, 1].real for i in range(nx)])
-    ax_real.set_title(f'Approximation')
+    ax_real.plot(x_int, [wavefunction[i, t_index] * wavefunction[i, t_index].conjugate() for i in range(nx)])
 
-    ax_imag.plot(x_int, [GaussWP(k0, a, x_int[i], t).real for i in range(nx)])
-    ax_imag.set_title(f'Exact value')
+    ax_imag.plot(x_int, [GaussWP(k0, a, x_int[i], t) * GaussWP(k0, a, x_int[i], t).conjugate()  for i in range(nx)])
 
 
     plt.show()

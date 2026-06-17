@@ -12,17 +12,17 @@ def GaussWP (k0: float, a: float, x: float, t: float) -> complex :
 
 if __name__ == '__main__' :
 	
-	t_0 = 1
+	t_0 = 0
 	t = t_0
 	
-	k0 = 1
-	a=1
+	k0 = 0
+	a = 1
 	
-	x_range = (0, 2)
+	x_range = (-2, 2)
 	splits = 100
 	
 	x = linspace(x_range[0], x_range[1], splits)
-	y = [GaussWP(k0, a, x, t).imag for x in x]
+	y = [GaussWP(k0, a, x, t).real for x in x]
 	
 	fig, ax = plt.subplots()
 	ax.plot(x, y)
