@@ -1,7 +1,7 @@
 '''idk what this file is tbh'''
 
 import numpy as np
-from derivee import derivee, derivee2
+from derivative import derivative, derivative2
 from constants import H_BAR
 
 
@@ -25,4 +25,4 @@ if __name__ == '__main__' :
     # Potential
     v_0 = 0
 
-    derivee(fonction_onde[0, :])
+    derivative(fonction_onde[0, :])

@@ -1,19 +1,24 @@
 '''Functions to approximate the first and second derivatives of a function'''
+from types import Interval, Function
 
 
 
-def derivative (tab_f: list[float], tab_x: list[float]) -> list[float] :
+def derivative (function: Function, x_int: Interval) -> Function :
     '''Approximates the derivative of f, returns an empty array if failed.'''
-    if len(tab_f) != len(tab_x) :
+    if len(function) != len(x_int) :
         return []
-    return [(tab_f[i + 1] - tab_f[i]) / (tab_x[i + 1] - tab_x[i]) for i in range(len(tab_f) - 1)]
+
+    result = [(function[1] - function[0]) / (x_int[1] - x_int[0])]
+    for i in range(1, len(function) - 1) :
+        result.append((function[i + 1] - function[i - 1]) / (x_int[i + 1] - x_int[i - 1]))
+    result.append((function[-1] - function[-2]) / (x_int[-1] - x_int[-2]))
+
+    return result
 
 
-def derivative2 (tab_f: list[float], tab_d: list[float], tab_x: list[float]) -> list[float] :
+def derivative2 (function: Function, x_int: Interval) -> Function :
     '''Approximates the second derivative of f, returns an empty array if failed.'''
-    if len(tab_f) != len(tab_x) or len(tab_f) != len(tab_d) + 1 :
-        return []
-    return [(tab_f[i + 2] - 2 * tab_f[i + 1] + tab_f[i]) / (tab_x[i + 1] - tab_x[i]) ** 2 for i in range(len(tab_f) - 2)]
+    return derivative(derivative(function, x_int), x_int)
 
 
 
@@ -31,7 +36,7 @@ if __name__ == '__main__' :
     tab_approximation = derivative(tab_f, tab_x)
 
     tab_derivee2 = [2 for x in tab_x[:-2]]
-    tab_approximation2 = derivative2(tab_f, tab_approximation, tab_x)
+    tab_approximation2 = derivative2(tab_f, tab_x)
 
     tab_erreur = [tab_approximation2[i] - tab_derivee2[i] for i in range(n - 2)]
 
