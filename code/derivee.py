@@ -1,4 +1,4 @@
-
+'''Functions to approximate the first and second derivatives of a function'''
 
 def derivee (tab_f: list[float], tab_x: list[float]) -> list[float] :
     '''Calcule la dérivée de f, renvoie un tableau vide si échec'''
