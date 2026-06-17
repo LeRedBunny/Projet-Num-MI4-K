@@ -3,8 +3,7 @@
 
 
 from constants import H_BAR, ME, TWO_PI
-from numpy import exp
-from helper import splitInterval
+from numpy import exp, linspace
 import matplotlib.pyplot as plt
 
 
@@ -24,7 +23,7 @@ if __name__ == '__main__' :
 	x_range = (0, 100)
 	splits = 100
 	
-	x = splitInterval(x_range[0], x_range[1], splits)
+	x = linspace(x_range[0], x_range[1], splits)
 	y = [GaussWP(k0, a, x, t).imag for x in x]
 	
 	fig, ax = plt.subplots()

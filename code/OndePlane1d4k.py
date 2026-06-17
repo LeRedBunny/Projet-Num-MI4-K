@@ -1,8 +1,7 @@
 '''Plane waves.'''
 
-from numpy import pi, exp, sqrt, real, imag, zeros, linspace
+from numpy import exp, linspace
 import matplotlib.pyplot as plt
-from helper import splitInterval
 
 
 
@@ -26,7 +25,7 @@ if __name__ == '__main__' :
 	x_range = (0, 100)
 	splits = 100
 	
-	x = splitInterval(x_range[0], x_range[1], splits)
+	x = linspace(x_range[0], x_range[1], splits)
 	y = [PlaneWave(amp, k, omega, x, t) for x in x]
 	
 	fig, ax = plt.subplots()
