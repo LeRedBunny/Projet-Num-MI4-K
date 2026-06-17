@@ -8,25 +8,26 @@ from constants import H_BAR, ME
 import matplotlib.pyplot as plt
 
 
-def ApproximateNextColumn (column: int, wavefunction: WaveFunction, x_int: Interval, t_int: Interval, potential: float) -> None :
-    '''Completes the next column of the array, corresponding to the next instant in time, using Schrödinger's equation.'''
+def completeNextColumn (wavefunction: WaveFunction, t_i: int, x_int: Interval, t_int: Interval, potential: Function) -> None :
+    '''Completes the column of the array, corresponding to the instant in time t_i + 1.'''
 
-    laplacian = derivative2(wavefunction[:, column], x_int)
+    laplacian = derivative2(wavefunction[:, t_i], x_int)
+    delta_t = t_int[t_i + 1] - t_int[t_i]
 
-    # Proof n°1
-    for i in range(len(t_int) - 1) :
-        dt = t_int[i + 1] - t_int[i]
-        wavefunction[i + 1, column + 1] = (
-            (1 - 1j * potential * dt / H_BAR) *  wavefunction[column, i] 
-            + 0.5j * H_BAR * dt * laplacian[i] / ME
+    for x_i in range(len(x_int) - 1) :
+        
+        wavefunction[x_i + 1, t_i + 1] = (
+            (1 - 1j * potential[x_i] * delta_t / H_BAR) *  wavefunction[x_i, t_i] 
+            + 0.5j * H_BAR * delta_t * laplacian[x_i] / ME
         )
+
 
 
 def ApproximateWaveFunction (wavefunction: WaveFunction, x_int: Interval, t_int: Interval, potential: Function) -> None :
     '''Completes the array representing the wavefunction using Schrödinger's equation.'''
     
-    for i in range(len(t_int) - 1) :
-        ApproximateNextColumn(i, wavefunction, x_int, t_int, potential[i])
+    for t_index in range(len(t_int) - 1) :
+        completeNextColumn(wavefunction, t_index, x_int, t_int, potential)
 
 
 

@@ -34,12 +34,12 @@ if __name__ == '__main__' :
     tab_x = [x_0 + i * delta for i in range(n)]
     tab_f = [(x_0 + i * delta) ** 2 for i in range(n)]
     
-    tab_derivee = [2 * x for x in tab_x[:-1]]
+    tab_derivee = [2 * x for x in tab_x[:]]
     tab_approximation = derivative(tab_f, tab_x)
 
-    tab_derivee2 = [2 for x in tab_x[:-2]]
+    tab_derivee2 = [2 for x in tab_x[:]]
     tab_approximation2 = derivative2(tab_f, tab_x)
 
-    tab_erreur = [tab_approximation2[i] - tab_derivee2[i] for i in range(n - 2)]
+    tab_erreur = [tab_approximation2[i] - tab_derivee2[i] for i in range(n)]
 
     print(f'Erreur moyenne : {round(sum(tab_erreur) / n, 3)}')
