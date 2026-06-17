@@ -1,8 +1,8 @@
 '''idk what this file is tbh'''
 
-import numpy as np
 from derivative import derivative, derivative2
 from constants import H_BAR
+import numpy as np
 
 
 if __name__ == '__main__' :
