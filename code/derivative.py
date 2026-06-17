@@ -24,6 +24,7 @@ def derivative2 (function: Function, x_int: Interval) -> Function :
 
 
 # Tests
+
 if __name__ == '__main__' :
 
     delta = 1e-1

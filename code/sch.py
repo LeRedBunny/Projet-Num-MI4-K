@@ -4,9 +4,20 @@ from derivative import derivative, derivative2
 from types import WaveFunction, Interval
 from PaquetOndeGauss1d4k import GaussWP
 from numpy import empty, linspace
-from constants import H_BAR
+from constants import H_BAR, ME
 
 
+def ApproximateInitialPosition (wavefunction: WaveFunction, t_int: Interval, potential: float) -> None :
+    '''Completes the first line of the array, corresponding to initial position, using Schrödinger's equation.'''
+
+    laplacian = derivative2(wavefunction[:, 0], x_int)
+
+    for i in range(len(t_int) - 1) :
+        dt = t_int[i + 1] - t_int[i]
+        wavefunction[0, i + 1] = (
+            (1 - 1j * potential * dt / H_BAR) *  wavefunction[0, i] 
+            + 0.5j * H_BAR * dt * laplacian[i] / ME
+        )
 
 
 def ApproximateWF (wavefunction: WaveFunction, x_int: Interval, t_int: Interval) -> None :
@@ -14,6 +25,8 @@ def ApproximateWF (wavefunction: WaveFunction, x_int: Interval, t_int: Interval)
     
     initial_wf = wavefunction[:, 0]
     laplacian = derivative2(initial_wf, x_int)
+    
+    ApproximateInitialPosition(wavefunction, t_int)
 
     for i in range(len(x_int)) :
         for j in range(1, len(t_int)) :
