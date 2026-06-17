@@ -1,8 +1,8 @@
 '''Approximates the wavefunction using Schrödinger's equation.'''
 
 from customTypes import WaveFunction, Interval, Function
-from derivative import derivative, derivative2
 from PaquetOndeGauss1d4k import GaussWP
+from derivative import derivative2
 from numpy import empty, linspace
 from constants import H_BAR, ME
 import matplotlib.pyplot as plt
@@ -16,6 +16,7 @@ def completeNextColumn (wavefunction: WaveFunction, t_i: int, x_int: Interval, t
 
     for x_i in range(len(x_int) - 1) :
         
+        # Pour la preuve, voir annexe code 1
         wavefunction[x_i + 1, t_i + 1] = (
             (1 - 1j * potential[x_i] * delta_t / H_BAR) *  wavefunction[x_i, t_i] 
             + 0.5j * H_BAR * delta_t * laplacian[x_i] / ME
@@ -35,25 +36,34 @@ def ApproximateWaveFunction (wavefunction: WaveFunction, x_int: Interval, t_int:
 if __name__ == '__main__' :
 
     # Parameters
+
     k0 = 0
     a = 1
 
+
     # Space
+    
     x_min = -2
     x_max = 2
     nx = 100
     x_int = linspace(x_min, x_max, nx)
 
+
     # Time
+
     t_min = 0
     t_max = 10
     nt = 50
     t_int = linspace(t_min, t_max, nt)
 
+
     # Potential
+
     potential = [0] * nx
 
+
     # Wavefunction
+
     wavefunction = empty((nx, nt), dtype=complex)
     for i in range(nx) :
         wavefunction[i, 0] = GaussWP(k0, a, x_int[i], t_min)
