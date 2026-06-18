@@ -3,7 +3,7 @@
 from customTypes import WaveFunction, Interval, Function
 from PaquetOndeGauss1d4k import GaussWP
 from derivative import derivative2
-from numpy import empty, linspace
+from numpy import empty, linspace, round as npround
 from constants import H_BAR, ME
 import matplotlib.pyplot as plt
 
@@ -17,11 +17,11 @@ def completeNextColumn (wavefunction: WaveFunction, t_i: int, x_int: Interval, t
 
     for x_i in range(len(x_int) - 1) :
         # Pour la preuve, voir annexe code 1
-        wavefunction[x_i + 1, t_i + 1] = (
-            (1 - 1j * potential[x_i] * delta_t / H_BAR) *  wavefunction[x_i, t_i] 
-            + 0.5j * H_BAR * delta_t * laplacian[x_i] / ME
+        wavefunction[x_i + 1, t_i + 1] = npround(
+            (1 - 1j * potential[x_i] * delta_t / H_BAR) *  wavefunction[x_i, t_i]
+            + 0.5j * H_BAR * delta_t * laplacian[x_i] / ME,
+            6
         )
-
 
 
 def ApproximateWaveFunction (wavefunction: WaveFunction, x_int: Interval, t_int: Interval, potential: Function) -> None :
@@ -35,6 +35,19 @@ def ApproximateWaveFunction (wavefunction: WaveFunction, x_int: Interval, t_int:
 def getMaximum (wavefunction: WaveFunction, t_i: int, x_int: Interval) -> int :
     '''Returns the x index of the maximum probability density at time index t_i'''
     return max([i for i in range(len(x_int))], key = lambda x_i : abs(wavefunction[x_i, t_i]) ** 2)
+
+
+def normalize (wavefunction: WaveFunction, t_i: int, x_int: Interval) -> None :
+    '''Normalizes the wavefunction at time t_i'''
+    integral = 0
+
+    for x_i in range(len(x_int) - 1) :
+        delta_x = x_int[x_i + 1] - x_int[x_i]
+        integral += abs(wavefunction[x_i, t_i]) ** 2 * delta_x
+    
+    factor = integral ** -0.5
+    for x_i in range(len(x_int) - 1) :
+        wavefunction[x_i, t_i] *= factor 
 
 
 
@@ -64,7 +77,7 @@ if __name__ == '__main__' :
 
     # Potential
 
-    potential = [1 if 5 < x < 6 else 0 for x in x_int]
+    potential = [0] * nx
 
 
     # Wavefunction
