@@ -9,17 +9,41 @@ import matplotlib.pyplot as plt
 
 
 
+# def completeNextColumn (wavefunction: WaveFunction, t_i: int, x_int: Interval, t_int: Interval, potential: Function) -> None :
+#     '''Completes the column of the array, corresponding to the instant in time t_i + 1.'''
+
+#     laplacian = derivative2(wavefunction[:, t_i], x_int)
+#     delta_t = t_int[t_i + 1] - t_int[t_i]
+
+#     for x_i in range(len(x_int) - 1) :
+#         # Pour la preuve, voir annexe code 1
+#         wavefunction[x_i + 1, t_i + 1] = npround(
+#             (1 - 1j * potential[x_i] * delta_t / H_BAR) *  wavefunction[x_i, t_i]
+#             + 0.5j * H_BAR * delta_t * laplacian[x_i] / ME,
+#             6
+#         )
+    
+#     normalize(wavefunction, t_i + 1, x_int)
+
 def completeNextColumn (wavefunction: WaveFunction, t_i: int, x_int: Interval, t_int: Interval, potential: Function) -> None :
     '''Completes the column of the array, corresponding to the instant in time t_i + 1.'''
 
     laplacian = derivative2(wavefunction[:, t_i], x_int)
     delta_t = t_int[t_i + 1] - t_int[t_i]
 
-    for x_i in range(len(x_int) - 1) :
+    for x_i in range(len(x_int)) :
+
+        if x_i == 0 or x_i == len(x_int) - 1 :
+            v = potential[x_i]
+            l = laplacian[x_i]
+        else :
+            v = (potential[x_i - 1] + 2 * potential[x_i] + potential[x_i + 1]) / 4
+            l = laplacian[x_i] # (laplacian[x_i - 1] + 2 * laplacian[x_i] + laplacian[x_i + 1]) / 4
+
         # Pour la preuve, voir annexe code 1
-        wavefunction[x_i + 1, t_i + 1] = npround(
-            (1 - 1j * potential[x_i] * delta_t / H_BAR) *  wavefunction[x_i, t_i]
-            + 0.5j * H_BAR * delta_t * laplacian[x_i] / ME,
+        wavefunction[x_i, t_i + 1] = npround(
+            (1 - 1j * v * delta_t / H_BAR) *  wavefunction[x_i, t_i]
+            + 0.5j * H_BAR * delta_t * l / ME,
             6
         )
     
@@ -35,12 +59,14 @@ def ApproximateWaveFunction (wavefunction: WaveFunction, x_int: Interval, t_int:
 
 
 def getMaximum (wavefunction: WaveFunction, t_i: int, x_int: Interval) -> int :
-    '''Returns the x index of the maximum probability density at time index t_i'''
+    '''Returns the x index of the maximum probability density at time index t_i.'''
     return max([i for i in range(len(x_int))], key = lambda x_i : abs(wavefunction[x_i, t_i]) ** 2)
 
 
+
 def normalize (wavefunction: WaveFunction, t_i: int, x_int: Interval) -> None :
-    '''Normalizes the wavefunction at time t_i'''
+    '''Normalizes the wavefunction at time t_i by integrating the probabilty density.'''
+
     integral = 0
 
     for x_i in range(len(x_int) - 1) :
@@ -52,6 +78,7 @@ def normalize (wavefunction: WaveFunction, t_i: int, x_int: Interval) -> None :
         wavefunction[x_i, t_i] *= factor 
 
 
+# Tests 
 
 if __name__ == '__main__' :
 
