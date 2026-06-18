@@ -22,6 +22,8 @@ def completeNextColumn (wavefunction: WaveFunction, t_i: int, x_int: Interval, t
             + 0.5j * H_BAR * delta_t * laplacian[x_i] / ME,
             6
         )
+    
+    normalize(wavefunction, t_i + 1, x_int)
 
 
 def ApproximateWaveFunction (wavefunction: WaveFunction, x_int: Interval, t_int: Interval, potential: Function) -> None :

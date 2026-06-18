@@ -75,8 +75,8 @@ if __name__ == '__main__' :
             print(f'maximum probability density in x = {x_int[max_i]}')
 
     animation = anim.FuncAnimation(fig, update, nt)
-    #animation.save(filename="animation.gif", writer="pillow")
-    plt.show()
+    animation.save(filename="animation.gif", writer="pillow")
+    #plt.show()
 
 
     # for t_i in range(nt) :
