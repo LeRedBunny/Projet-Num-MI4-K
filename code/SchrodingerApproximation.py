@@ -6,7 +6,8 @@ from derivative import derivative2
 from numpy import empty, linspace
 from constants import H_BAR, ME
 import matplotlib.pyplot as plt
-import matplotlib.animation as anim
+
+
 
 def completeNextColumn (wavefunction: WaveFunction, t_i: int, x_int: Interval, t_int: Interval, potential: Function) -> None :
     '''Completes the column of the array, corresponding to the instant in time t_i + 1.'''
@@ -15,7 +16,6 @@ def completeNextColumn (wavefunction: WaveFunction, t_i: int, x_int: Interval, t
     delta_t = t_int[t_i + 1] - t_int[t_i]
 
     for x_i in range(len(x_int) - 1) :
-        
         # Pour la preuve, voir annexe code 1
         wavefunction[x_i + 1, t_i + 1] = (
             (1 - 1j * potential[x_i] * delta_t / H_BAR) *  wavefunction[x_i, t_i] 
@@ -30,6 +30,11 @@ def ApproximateWaveFunction (wavefunction: WaveFunction, x_int: Interval, t_int:
     for t_index in range(len(t_int) - 1) :
         completeNextColumn(wavefunction, t_index, x_int, t_int, potential)
 
+
+
+def getMaximum (wavefunction: WaveFunction, t_i: int, x_int: Interval) -> int :
+    '''Returns the x index of the maximum probability density at time index t_i'''
+    return max([i for i in range(len(x_int))], key = lambda x_i : abs(wavefunction[x_i, t_i]) ** 2)
 
 
 
@@ -59,7 +64,7 @@ if __name__ == '__main__' :
 
     # Potential
 
-    potential = [0] * nx
+    potential = [1 if 5 < x < 6 else 0 for x in x_int]
 
 
     # Wavefunction
@@ -79,9 +84,9 @@ if __name__ == '__main__' :
     fig, (ax_real, ax_imag) = plt.subplots(2)
     fig.suptitle(f'Wavefunction Ψ at time t={t}s')
 
-    ax_real.plot(x_int, [wavefunction[i, t_index] * wavefunction[i, t_index].conjugate() for i in range(nx)])
+    ax_real.plot(x_int, [abs(wavefunction[i, t_index]) ** 2 for i in range(nx)])
 
-    ax_imag.plot(x_int, [GaussWP(k0, a, x_int[i], t) * GaussWP(k0, a, x_int[i], t).conjugate()  for i in range(nx)])
+    ax_imag.plot(x_int, [abs(GaussWP(k0, a, x_int[i], t)) ** 2  for i in range(nx)])
 
 
     plt.show()
