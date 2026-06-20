@@ -26,6 +26,9 @@ type Array = np.array
 def initWaveFunction (x_int: Array, t_int: Array, a: float, k_0: float, x_0: float) -> Array :
     '''Returns the array representing the wavefunction, with the column corresponding to inital position initialized'''
 
+    nx = len(x_int)
+    nt = len(t_int)
+
     wavefunction = np.zeros((nx, nt), dtype=complex)
 
     for x_i in range(nx) :
@@ -83,6 +86,9 @@ def smoothingArray (x_int: Array, *, width: float = 3.0) -> Array :
 def approximateWaveFunction (wavefunction: Array, x_int: Array, t_int: Array, potential: Array) -> float :
     '''Approximates the wave function using the Crank-Nicolson method. Returns the time it took to do so.'''
 
+    nx = len(x_int)
+    nt = len(t_int)
+
     dx = x_int[1] - x_int[0]
     dt = t_int[1] - t_int[0]
 
@@ -130,7 +136,24 @@ def probabilityDensity (wavefunction: Array, t_i: int, x_int: Array) -> Array :
     return np.array([abs(wavefunction[x_i, t_i]) ** 2 for x_i in range(len(x_int))])
 
 
+def getBarrierIndices (x_int: Array, potential: Array) -> tuple[int, int] :
+    '''Returns the indices of the start and stop of the potential barrier.'''
 
+    nx = len(x_int)
+
+    barrier_start_index = 0
+    barrier_end_index = 0
+
+    i = 0
+    while (barrier_start_index == 0 or barrier_end_index == 0) and i < nx :
+        if potential[i] == 0 and potential[i + 1] != 0 :
+            barrier_start_index = i 
+        if potential[i] != 0 and potential[i + 1] == 0 :
+            barrier_end_index = i
+        i += 1
+
+    return barrier_start_index, barrier_end_index
+    
 
  
 
@@ -152,12 +175,12 @@ if __name__ == '__main__' :
     x_int = np.linspace(x_min, x_max, nx)
 
     t_min = 0   # Don't change that
-    t_max = 10
+    t_max = 5
     nt = 1000
     t_int = np.linspace(t_min, t_max, nt)
 
 
-    energy_ratio = 0.8  # This is the ratio E/V
+    energy_ratio = 1.5  # This is the ratio E/V
     v0 = energy / energy_ratio  # J
     barrier_start = 5
     barrier_length = 2
@@ -174,7 +197,6 @@ if __name__ == '__main__' :
             if potential[i] != 0 and potential[i + 1] == 0 :
                 barrier_end_index = i
             i += 1
-        print(barrier_start_index, barrier_end_index)
 
 
     wavefunction = initWaveFunction(x_int, t_int, a, k_0, x_0)
