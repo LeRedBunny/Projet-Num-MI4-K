@@ -176,11 +176,11 @@ if __name__ == '__main__' :
 
     t_min = 0   # Don't change that
     t_max = 5
-    nt = 1000
+    nt = 500
     t_int = np.linspace(t_min, t_max, nt)
 
 
-    energy_ratio = 1.5  # This is the ratio E/V
+    energy_ratio = 0.8  # This is the ratio E/V
     v0 = energy / energy_ratio  # J
     barrier_start = 5
     barrier_length = 2
@@ -236,7 +236,6 @@ if __name__ == '__main__' :
         for point in points :
             point.remove()
         points = []
-
         maximums = getLocalMaximums(wavefunction, frame, x_int)
         for x_i in maximums :
             points.append(plt.plot(x_int[x_i], density[x_i], 'ro')[0])
@@ -254,9 +253,9 @@ if __name__ == '__main__' :
         # print(f'R = {100 * reflection} %, T = {100 * transmission} %')
         
 
-    animation = anim.FuncAnimation(fig, update, nt, interval=30)
-    #animation.save(filename="animation.gif", writer="pillow")
-    plt.show()
+    animation = anim.FuncAnimation(fig, update, nt, interval=1)
+    animation.save(filename="animation2.gif", writer="pillow")
+    #plt.show()
 
 
     # t_i = nt // 3
