@@ -6,7 +6,6 @@
 import numpy as np
 from scipy.linalg import solve_banded
 from matplotlib import pyplot as plt, animation as anim
-from time import perf_counter
 from itertools import chain
 from typing import Optional
 
@@ -43,7 +42,7 @@ def integrateDensity (wavefunction: Array, t_i: int, x_int: Array, *, start: Opt
 
     dx = x_int[1] - x_int[0]
     
-    mask = masque_absorbant(x_int)
+    mask = smoothingArray(x_int)
 
     if start is None :
         start = 0
@@ -66,22 +65,23 @@ def normalizeWaveFunction (wavefunction: Array, t_i: int, x_int: Array) -> None 
 
 
 
-def masque_absorbant(x, largeur=3.0):
-    # Créer par Claude
-    mask = np.ones_like(x)
-    # Bord gauche
-    zone_g = x < (x[0] + largeur)
-    mask[zone_g] = np.exp(-((x[zone_g] - (x[0] + largeur)) / (largeur/3))**2)
+def smoothingArray (x_int: Array, *, width: float = 3.0) -> Array :
+    '''Returns an array of values to soften the impact of approximation errors on the edges of the simulation.'''
+
+    mask = np.ones_like(x_int)
+    
+    left = x_int < (x_int[0] + width)
+    mask[left] = np.exp(-((x_int[left] - (x_int[0] + width)) / width) ** 2)
     # Bord droit
-    zone_d = x > (x[-1] - largeur)
-    mask[zone_d] = np.exp(-((x[zone_d] - (x[-1] - largeur)) / (largeur/3))**2)
+    zone_d = x_int > (x_int[-1] - width)
+    mask[zone_d] = np.exp(-((x_int[zone_d] - (x_int[-1] - width)) / width) ** 2)
+
     return mask
+
 
 
 def approximateWaveFunction (wavefunction: Array, x_int: Array, t_int: Array, potential: Array) -> float :
     '''Approximates the wave function using the Crank-Nicolson method. Returns the time it took to do so.'''
-
-    start_time = perf_counter()
 
     dx = x_int[1] - x_int[0]
     dt = t_int[1] - t_int[0]
@@ -99,7 +99,7 @@ def approximateWaveFunction (wavefunction: Array, x_int: Array, t_int: Array, po
     A_banded[1, :]   = diag_A  # diagonale
     A_banded[2, :-1] = off_A   # sous-diagonale
 
-    mask = masque_absorbant(x_int)  # Masque absorbant aux bords aux limites du réseau
+    mask = smoothingArray(x_int)
 
     for j in range(nt - 1):
         # Calcul du membre de droite (explicite) : B @ wavefunction[j]
@@ -109,8 +109,6 @@ def approximateWaveFunction (wavefunction: Array, x_int: Array, t_int: Array, po
 
         # Résolution implicite du système tridiagonal
         wavefunction[:, j+1] = solve_banded((1, 1), A_banded, rhs) * mask
-    
-    return perf_counter() - start_time
 
 
 def getLocalMaximums (wavefunction: Array, t_i: int, x_int: Array, *, search_width: int = 5) -> list[int] :
@@ -159,7 +157,7 @@ if __name__ == '__main__' :
     t_int = np.linspace(t_min, t_max, nt)
 
 
-    energy_ratio = 0.5  # This is the ratio E/V
+    energy_ratio = 0.8  # This is the ratio E/V
     v0 = energy / energy_ratio  # J
     barrier_start = 5
     barrier_length = 2
@@ -180,7 +178,7 @@ if __name__ == '__main__' :
 
 
     wavefunction = initWaveFunction(x_int, t_int, a, k_0, x_0)
-    time = approximateWaveFunction(wavefunction, x_int, t_int, potential)
+    approximateWaveFunction(wavefunction, x_int, t_int, potential)
 
 
 
@@ -221,18 +219,17 @@ if __name__ == '__main__' :
         for x_i in maximums :
             points.append(plt.plot(x_int[x_i], density[x_i], 'ro')[0])
         
-        # current_pos = x_int[maximums[-1]]
-        # if current_pos >= barrier_start and barrier_enter_time == 0 :
-        #     barrier_enter_time = t_int[frame]
-        # if current_pos >= barrier_start + barrier_length and barrier_exit_time == 0 :
-        #     barrier_exit_time = t_int[frame]
-        # print(barrier_enter_time, barrier_exit_time)
-        # if barrier_enter_time and barrier_exit_time :
-        #     print(f'Time to traverse barrier : {barrier_exit_time - barrier_enter_time} s')
+        current_pos = x_int[maximums[-1]]
+        if current_pos >= barrier_start - 5 and barrier_enter_time == 0 :
+            barrier_enter_time = t_int[frame]
+        if current_pos >= barrier_start + barrier_length and barrier_exit_time == 0 :
+            barrier_exit_time = t_int[frame]
+            print(f'Time to traverse barrier : {barrier_exit_time - barrier_enter_time} s')
+            
 
         reflection = integrateDensity(wavefunction, frame, x_int, end=barrier_end_index)
         transmission = integrateDensity(wavefunction, frame, x_int, start=barrier_end_index)
-        print(f'R = {100 * reflection} %, T = {100 * transmission} %')
+        # print(f'R = {100 * reflection} %, T = {100 * transmission} %')
         
 
     animation = anim.FuncAnimation(fig, update, nt, interval=30)
