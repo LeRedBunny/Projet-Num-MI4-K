@@ -1,10 +1,23 @@
 
 
 from crankNicolson import *
+from collections import namedtuple
 
 
+SimResults = namedtuple('SimResults', (
+    'k_0',
+    'a',
+    'x_0',
+    'E',    # Energy
+    'V',    # Potential
+    'L',    # Barrier length
+    'time',
+    'R',    # Reflection probability
+    'T'     # Transmission probability
+))
 
-def simulation (k_0: float, a: float, x_0: float, potential: Array, x_int: Array, t_int: Array) -> None :
+
+def simulation (k_0: float, a: float, x_0: float, potential: Array, x_int: Array, t_int: Array) -> SimResults :
     '''Creates a full simulation and displays the results'''
 
     wavefunction = initWaveFunction(x_int, t_int, a, k_0, x_0)
@@ -24,9 +37,9 @@ def simulation (k_0: float, a: float, x_0: float, potential: Array, x_int: Array
         if encounter_index == 0 or traversal_index == 0 :
             maximums = getLocalMaximums(wavefunction, t_i, x_int)
             current_pos = x_int[maximums[-1]]
-            if current_pos >= barrier_start - 5 and encounter_index == 0 :
+            if current_pos >= x_int[barrier_start_index - 5] and encounter_index == 0 :
                 encounter_index = t_i
-            if current_pos >= barrier_start + barrier_length and traversal_index == 0 :
+            if current_pos >= x_int[barrier_end_index] and traversal_index == 0 :
                 traversal_index = t_i
         
         # After transmission
@@ -39,13 +52,28 @@ def simulation (k_0: float, a: float, x_0: float, potential: Array, x_int: Array
     # Display
 
     energy = H_BAR ** 2 * (1 + (a * k_0) ** 2) / (2 * ME * a ** 2)
-    print(f'Energy E = {energy} J\nPotential V = {potential[barrier_start_index + 1]} J')
-    print(f'Time to traverse barrier : {t_int[traversal_index] - t_int[encounter_index]} s')
+    # print(f'Energy E = {energy} J\nPotential V = {potential[barrier_start_index + 1]} J')
+    # print(f'Time to traverse barrier : {t_int[traversal_index] - t_int[encounter_index]} s')
     reflection = sum(reflection_probabilities) / len(reflection_probabilities)
     transmission = sum(transmission_probabilities) / len(transmission_probabilities)
     reflection /= reflection + transmission
     transmission /= reflection + transmission
-    print(f'Probability of Reflection R = {100 * reflection} %\nProbability of transmission T = {100 * transmission} %')
+    # print(f'Probability of Reflection R = {100 * reflection} %\nProbability of transmission T = {100 * transmission} %')
+
+
+    results = SimResults(
+        k_0,
+        a,
+        x_0,
+        energy,
+        potential[barrier_start_index + 1],
+        x_int[barrier_end_index] - x_int[barrier_start_index],
+        t_int[traversal_index] - t_int[encounter_index],
+        reflection, 
+        transmission
+    )
+
+    return results
 
 
 
@@ -73,11 +101,19 @@ if __name__ == '__main__' :
 
     energy_ratio = 0.8  # This is the ratio E/V
     v0 = energy / energy_ratio  # J
-    barrier_start = 5
-    barrier_length = 2
-    potential = np.array([v0 if barrier_start <= x <= barrier_start + barrier_length else 0 for x in x_int])
+    barrier_start_index = 50
+    
 
 
-    # Simulation
+    # Simulation to plot traversal time by barrier width
 
-    simulation(k_0, a, x_0, potential, x_int, t_int)
+    times = []
+
+    for i in range(1, 30) :
+        barrier_end = x_int[barrier_start_index + i]
+        potential = np.array([v0 if x_int[barrier_start_index] <= x <= barrier_end else 0 for x in x_int])
+        times.append(simulation(k_0, a, x_0, potential, x_int, t_int).time)
+    
+    ax, fig = plt.subplots()
+    fig.plot(x_int[1: 30], times)
+    plt.show()
