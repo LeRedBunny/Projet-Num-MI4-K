@@ -68,16 +68,16 @@ def normalizeWaveFunction (wavefunction: Array, t_i: int, x_int: Array) -> None 
 
 
 
-def smoothingArray (x_int: Array, *, width: float = 3.0) -> Array :
+def smoothingArray (x_int: Array, *, width: float = 2.0) -> Array :
     '''Returns an array of values to soften the impact of approximation errors on the edges of the simulation.'''
 
     mask = np.ones_like(x_int)
     
     left = x_int < (x_int[0] + width)
     mask[left] = np.exp(-((x_int[left] - (x_int[0] + width)) / width) ** 2)
-    # Bord droit
-    zone_d = x_int > (x_int[-1] - width)
-    mask[zone_d] = np.exp(-((x_int[zone_d] - (x_int[-1] - width)) / width) ** 2)
+    
+    right = x_int > (x_int[-1] - width)
+    mask[right] = np.exp(-((x_int[right] - (x_int[-1] - width)) / width) ** 2)
 
     return mask
 
@@ -93,28 +93,24 @@ def approximateWaveFunction (wavefunction: Array, x_int: Array, t_int: Array, po
     dt = t_int[1] - t_int[0]
 
     r = 0.25j * H_BAR * dt / (ME * dx ** 2)
-    
-    diag_A  =  1 + 2 * r + 1j * dt / (2 * H_BAR) * potential
-    off_A   = -r * np.ones(nx - 1)
 
-    diag_B  =  1 - 2 * r - 1j * dt / (2 * H_BAR) * potential
-    off_B   =  r * np.ones(nx - 1)
+    matrix = np.zeros((3, nx), dtype=complex)
+    matrix[0, 1:]  = -r * np.ones(nx - 1)
+    matrix[1, :]   = 1 + 2 * r + 1j * dt / (2 * H_BAR) * potential
+    matrix[2, :-1] = matrix[0, 1:]
 
-    A_banded = np.zeros((3, nx), dtype=complex)
-    A_banded[0, 1:]  = off_A   # sur-diagonale
-    A_banded[1, :]   = diag_A  # diagonale
-    A_banded[2, :-1] = off_A   # sous-diagonale
+    right_diagonal  =  1 - 2 * r - 1j * dt / (2 * H_BAR) * potential
+    right_off_diagonal   =  r * np.ones(nx - 1)
 
     mask = smoothingArray(x_int)
 
-    for j in range(nt - 1):
-        # Calcul du membre de droite (explicite) : B @ wavefunction[j]
-        rhs = diag_B * wavefunction[:, j]
-        rhs[1:]  += off_B * wavefunction[:-1, j]
-        rhs[:-1] += off_B * wavefunction[1:, j]
+    for t_i in range(nt - 1):
+        
+        right = right_diagonal * wavefunction[:, t_i]
+        right[1:]  += right_off_diagonal * wavefunction[:-1, t_i]
+        right[:-1] += right_off_diagonal * wavefunction[1:, t_i]
 
-        # Résolution implicite du système tridiagonal
-        wavefunction[:, j+1] = solve_banded((1, 1), A_banded, rhs) * mask
+        wavefunction[:, t_i + 1] = solve_banded((1, 1), matrix, right) * mask
 
 
 def getLocalMaximums (wavefunction: Array, t_i: int, x_int: Array, *, search_width: int = 5) -> list[int] :
