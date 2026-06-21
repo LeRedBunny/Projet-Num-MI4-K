@@ -71,14 +71,15 @@ def normalizeWaveFunction (wavefunction: Array, t_i: int, x_int: Array) -> None 
 def smoothingArray (x_int: Array, *, width: float = 2.0) -> Array :
     '''Returns an array of values to soften the impact of approximation errors on the edges of the simulation.'''
 
-    mask = np.ones_like(x_int)
-    
-    left = x_int < (x_int[0] + width)
-    mask[left] = np.exp(-((x_int[left] - (x_int[0] + width)) / width) ** 2)
-    
-    right = x_int > (x_int[-1] - width)
-    mask[right] = np.exp(-((x_int[right] - (x_int[-1] - width)) / width) ** 2)
+    dx = x_int[1] - x_int[0]
 
+    mask = np.ones_like(x_int)
+
+    i = 0
+    while i * dx < width :
+        mask[i] = np.exp(-((x_int[i] - (x_int[0] + width)) / width) ** 2)
+        mask[-i] = np.exp(-((x_int[-i] - (x_int[-1] - width)) / width) ** 2)
+    
     return mask
 
 
