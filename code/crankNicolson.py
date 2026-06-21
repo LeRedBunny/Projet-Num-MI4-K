@@ -35,8 +35,7 @@ def initWaveFunction (x_int: Array, t_int: Array, a: float, k_0: float, x_0: flo
         x = x_int[x_i]
         # Preuve : Annexe code 2
         wavefunction[x_i, 0] = (4 / (TWO_PI * a ** 2)) ** 0.25 * np.exp(-((x - x_0) / a) ** 2 + 1j * k_0 * x)
-
-    # normalizeWaveFunction(wavefunction, 0, x_int)
+    
     return wavefunction
 
 
@@ -60,13 +59,6 @@ def integrateDensity (wavefunction: Array, t_i: int, x_int: Array, *, start: Opt
     return integral
 
 
-def normalizeWaveFunction (wavefunction: Array, t_i: int, x_int: Array) -> None :
-    '''Normalizes the wavefunction at a given time by approximating the integral of the probability density'''
-    factor = integrateDensity(wavefunction, t_i, x_int) ** -0.5
-    for x_i in range(len(x_int)) :
-        wavefunction[x_i, t_i] *= factor
-
-
 
 def smoothingArray (x_int: Array, *, width: float = 2.0) -> Array :
     '''Returns an array of values to soften the impact of approximation errors on the edges of the simulation.'''
@@ -74,18 +66,18 @@ def smoothingArray (x_int: Array, *, width: float = 2.0) -> Array :
     dx = x_int[1] - x_int[0]
 
     mask = np.ones_like(x_int)
-
+    
     i = 0
     while i * dx < width :
-        mask[i] = np.exp(-((x_int[i] - (x_int[0] + width)) / width) ** 2)
-        mask[-i] = np.exp(-((x_int[-i] - (x_int[-1] - width)) / width) ** 2)
+        mask[i] = 0.7
+        mask[-i] = 0.7
     
     return mask
 
 
 
-def approximateWaveFunction (wavefunction: Array, x_int: Array, t_int: Array, potential: Array) -> float :
-    '''Approximates the wave function using the Crank-Nicolson method. Returns the time it took to do so.'''
+def approximateWaveFunction (wavefunction: Array, x_int: Array, t_int: Array, potential: Array) -> None :
+    '''Approximates the wave function using the Crank-Nicolson method.'''
 
     nx = len(x_int)
     nt = len(t_int)
@@ -251,8 +243,8 @@ if __name__ == '__main__' :
         
 
     animation = anim.FuncAnimation(fig, update, nt, interval=1)
-    animation.save(filename="animation2.gif", writer="pillow")
-    #plt.show()
+    #animation.save(filename="animation2.gif", writer="pillow")
+    plt.show()
 
 
     # t_i = nt // 3
