@@ -84,26 +84,29 @@ def approximateWaveFunction (wavefunction: Array, x_int: Array, t_int: Array, po
 
     dx = x_int[1] - x_int[0]
     dt = t_int[1] - t_int[0]
+    
+    smoothing = smoothingArray(x_int)
 
+
+    # See PDF for start of proof
     r = 0.25j * H_BAR * dt / (ME * dx ** 2)
 
     matrix = np.zeros((3, nx), dtype=complex)
-    matrix[0, 1:]  = -r * np.ones(nx - 1)
-    matrix[1, :]   = 1 + 2 * r + 1j * dt / (2 * H_BAR) * potential
+    matrix[0, 1:] = -r * np.ones(nx - 1)
+    matrix[1, :] = 1 + 2 * r + 1j * dt / (2 * H_BAR) * potential
     matrix[2, :-1] = matrix[0, 1:]
 
-    right_diagonal  =  1 - 2 * r - 1j * dt / (2 * H_BAR) * potential
-    right_off_diagonal   =  r * np.ones(nx - 1)
-
-    mask = smoothingArray(x_int)
+    right_diagonal =  1 - 2 * r - 1j * dt / (2 * H_BAR) * potential
+    right_off_diagonal =  r * np.ones(nx - 1)
 
     for t_i in range(nt - 1):
         
         right = right_diagonal * wavefunction[:, t_i]
-        right[1:]  += right_off_diagonal * wavefunction[:-1, t_i]
+        right[1:] += right_off_diagonal * wavefunction[:-1, t_i]
         right[:-1] += right_off_diagonal * wavefunction[1:, t_i]
 
-        wavefunction[:, t_i + 1] = solve_banded((1, 1), matrix, right) * mask
+        # solve_banded is a built-in python function to solve matrix equations of the form Ax = B for x
+        wavefunction[:, t_i + 1] = solve_banded((1, 1), matrix, right) * smoothing
 
 
 def getLocalMaximums (wavefunction: Array, t_i: int, x_int: Array, *, search_width: int = 5) -> list[int] :
